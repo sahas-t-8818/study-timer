@@ -1,4 +1,4 @@
-# Study Timer
+# Study Timer --
 
 A React-based study timer application built with Vite.
 
