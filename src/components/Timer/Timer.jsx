@@ -147,7 +147,7 @@ const Timer = () => {
           <div className={styles['time-display']}>{formatTime(time)}</div>
           <div className={styles['timer-status']}>
             {!isRunning && !isPaused && 'Ready to start'}
-            {isRunning && !isPaused && 'Studying...'}
+            {isRunning && !isPaused && 'Studyinggg...'}
             {isPaused && 'Paused'}
           </div>
         </div>
