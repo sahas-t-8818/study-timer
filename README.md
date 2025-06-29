@@ -1,11 +1,53 @@
-# React + Vite
+# Study Timer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React-based study timer application built with Vite.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Study timer functionality
+- Built with React and Vite
+- Deployed on GitHub Pages
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+## Deployment
+
+This app is automatically deployed to GitHub Pages via GitHub Actions. The deployment workflow:
+
+1. Triggers on pushes to the `main` branch
+2. Builds the app using `npm run build`
+3. Deploys to GitHub Pages
+
+The app is configured to work with the repository name `study-timer` as the base path.
+
+## GitHub Pages Setup
+
+To enable GitHub Pages for this repository:
+
+1. Go to your repository settings
+2. Navigate to "Pages" in the sidebar
+3. Select "GitHub Actions" as the source
+4. The deployment will happen automatically when you push to the main branch
+
+## SPA Routing
+
+The app includes special handling for Single Page Application routing on GitHub Pages:
+- `404.html` redirects to the main app
+- `index.html` includes a script to handle URL restoration
 
 ## Expanding the ESLint configuration
 
