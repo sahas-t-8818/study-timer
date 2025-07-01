@@ -144,6 +144,23 @@
   font-weight: 500;
 }
 
+.install-btn {
+  background: #4f8cff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 1rem;
+}
+.install-btn:hover, .install-btn:focus {
+  background: #3566b8;
+  outline: none;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .sidebar {
