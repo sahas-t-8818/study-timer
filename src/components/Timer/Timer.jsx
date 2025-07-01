@@ -29,89 +29,92 @@ const ResetIcon = () => (
 );
 
 const Timer = () => {
-  const [time, setTime] = useState(0);
+  const [time, setTime] = useState(0); // seconds
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [sessionStartTime, setSessionStartTime] = useState(null);
-  const [sessionPauseTime, setSessionPauseTime] = useState(0);
-  const intervalRef = useRef(null);
+  const [startTime, setStartTime] = useState(null); // timestamp in ms
+  const [elapsed, setElapsed] = useState(0); // ms
+  const rafRef = useRef(null);
 
-  // Cleanup interval on unmount
-  useEffect(() => {
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, []);
-
-  // Timer logic
-  useEffect(() => {
-    if (isRunning && !isPaused) {
-      intervalRef.current = setInterval(() => {
-        setTime(prevTime => prevTime + 1);
-      }, 1000);
-    } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
+  // Animation frame update
+  const update = useCallback(() => {
+    if (isRunning && !isPaused && startTime) {
+      setTime(Math.floor((Date.now() - startTime + elapsed) / 1000));
+      rafRef.current = requestAnimationFrame(update);
     }
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [isRunning, isPaused]);
+  }, [isRunning, isPaused, startTime, elapsed]);
 
   // Start timer
   const startTimer = useCallback(() => {
     if (!isRunning) {
       setIsRunning(true);
       setIsPaused(false);
-      setSessionStartTime(Date.now());
-      setSessionPauseTime(0);
+      setStartTime(Date.now());
+      setElapsed(0);
     } else if (isPaused) {
       setIsPaused(false);
-      setSessionPauseTime(prev => prev + (Date.now() - sessionStartTime));
+      setStartTime(Date.now());
     }
-  }, [isRunning, isPaused, sessionStartTime]);
+  }, [isRunning, isPaused]);
 
   // Pause timer
   const pauseTimer = useCallback(() => {
-    if (isRunning && !isPaused) {
+    if (isRunning && !isPaused && startTime) {
       setIsPaused(true);
+      setElapsed(prevElapsed => prevElapsed + (Date.now() - startTime));
+      setStartTime(null);
     }
-  }, [isRunning, isPaused]);
+  }, [isRunning, isPaused, startTime]);
 
   // Stop timer and save session
   const stopTimer = useCallback(() => {
     if (isRunning && time > 0) {
+      const now = Date.now();
+      const totalElapsed = isPaused ? elapsed : (elapsed + (startTime ? now - startTime : 0));
       const session = {
-        duration: time,
-        startTime: sessionStartTime,
-        endTime: Date.now(),
-        pauseTime: sessionPauseTime
+        duration: Math.floor(totalElapsed / 1000),
+        startTime: startTime ? startTime : now - totalElapsed,
+        endTime: now,
+        pauseTime: 0 // not used
       };
-      
       addSession(session);
     }
-    
     setIsRunning(false);
     setIsPaused(false);
     setTime(0);
-    setSessionStartTime(null);
-    setSessionPauseTime(0);
-  }, [isRunning, time, sessionStartTime, sessionPauseTime]);
+    setStartTime(null);
+    setElapsed(0);
+  }, [isRunning, time, startTime, elapsed, isPaused]);
 
   // Reset timer
   const resetTimer = useCallback(() => {
     setIsRunning(false);
     setIsPaused(false);
     setTime(0);
-    setSessionStartTime(null);
-    setSessionPauseTime(0);
+    setStartTime(null);
+    setElapsed(0);
   }, []);
+
+  // Animation frame effect
+  useEffect(() => {
+    if (isRunning && !isPaused && startTime) {
+      rafRef.current = requestAnimationFrame(update);
+      return () => rafRef.current && cancelAnimationFrame(rafRef.current);
+    } else {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    }
+  }, [isRunning, isPaused, startTime, update]);
+
+  // On visibilitychange, recalc time if running
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible' && isRunning && !isPaused && startTime) {
+        setTime(Math.floor((Date.now() - startTime + elapsed) / 1000));
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [isRunning, isPaused, startTime, elapsed]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -135,7 +138,6 @@ const Timer = () => {
         resetTimer();
       }
     };
-
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [isRunning, isPaused, startTimer, pauseTimer, stopTimer, resetTimer]);

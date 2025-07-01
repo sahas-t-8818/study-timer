@@ -19,8 +19,12 @@
 - **Dashboard**: Visualizes total study time, average session, streaks, most productive hours/days, and recent sessions (see `src/components/Dashboard/Dashboard.jsx`).
 - **Charts**: Study time overview chart (see `src/components/Dashboard/StudyChart.jsx`).
 - **Motivational Quotes**: Random quote shown on dashboard (see `src/data/quotes.js`).
-- **Sidebar Navigation**: Switch between Timer and Dashboard, with responsive sidebar (see `src/components/Sidebar/Sidebar.jsx`).
+- **Responsive Sidebar Navigation**: 
+  - On mobile, a glassmorphic toggle sidebar slides in with a dark overlay, elegant animated hamburger menu, and close (X) button. Navigation and theme toggle are fully functional. Background scroll is disabled while open.
+  - On desktop, the sidebar is always visible as a floating glassmorphic box, with icons always visible and text labels revealed smoothly on hover (expand/collapse effect).
 - **Theme Toggle**: Light/dark mode with persistent setting (see `src/contexts/ThemeContext.jsx`).
+- **Offline Support**: The app detects when you are offline and displays a warning banner. All features work offline using localStorage.
+- **Background Optimizations**: The timer remains accurate even when the browser tab is backgrounded, minimized, or JavaScript timers are throttled, thanks to timestamp-based tracking and visibility event handling.
 - **SPA Routing for GitHub Pages**: Handles 404 and URL restoration for client-side routing (see `index.html` and `public/404.html`).
 - **Local Storage Persistence**: All data is stored in the browser's localStorage.
 

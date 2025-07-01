@@ -2,7 +2,7 @@
   "name": "Study Timer",
   "short_name": "StudyTimer",
   "description": "A React-based study timer with analytics and offline support.",
-  "start_url": "/",
+  "start_url": "/study-timer/",
   "display": "standalone",
   "background_color": "#181c20",
   "theme_color": "#4f8cff",
