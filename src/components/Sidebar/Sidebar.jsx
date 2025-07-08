@@ -2,7 +2,7 @@ import React, { forwardRef, useState, useEffect } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 import styles from './Sidebar.module.css';
 
-const Sidebar = forwardRef(({ activeTab, setActiveTab }, ref) => {
+const Sidebar = forwardRef(({ activeTab, setActiveTab, hideToggle }, ref) => {
   const { theme, toggleTheme } = useTheme();
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstall, setShowInstall] = useState(false);
@@ -17,11 +17,11 @@ const Sidebar = forwardRef(({ activeTab, setActiveTab }, ref) => {
 
   useEffect(() => {
     if (mobileOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.classList.add(styles['no-scroll']);
     } else {
-      document.body.style.overflow = '';
+      document.body.classList.remove(styles['no-scroll']);
     }
-    return () => { document.body.style.overflow = ''; };
+    return () => { document.body.classList.remove(styles['no-scroll']); };
   }, [mobileOpen]);
 
   useEffect(() => {
@@ -57,18 +57,20 @@ const Sidebar = forwardRef(({ activeTab, setActiveTab }, ref) => {
 
   // Hamburger button for mobile
   const Hamburger = () => (
-    <button
-      className={mobileOpen ? `${styles.hamburger} ${styles.hamburgerOpen}` : styles.hamburger}
-      aria-label={mobileOpen ? 'Close sidebar' : 'Open sidebar'}
-      onClick={() => setMobileOpen(!mobileOpen)}
-      style={{ position: 'fixed', top: 20, left: 20, zIndex: 2200 }}
-    >
-      <div className={styles.hamburgerInner}>
-        <span className={styles.bar}></span>
-        <span className={styles.bar}></span>
-        <span className={styles.bar}></span>
-      </div>
-    </button>
+    !hideToggle && (
+      <button
+        className={mobileOpen ? `${styles.hamburger} ${styles.hamburgerOpen}` : styles.hamburger}
+        aria-label={mobileOpen ? 'Close sidebar' : 'Open sidebar'}
+        onClick={() => setMobileOpen(!mobileOpen)}
+        style={{ position: 'fixed', top: 20, left: 20, zIndex: 2200 }}
+      >
+        <div className={styles.hamburgerInner}>
+          <span className={styles.bar}></span>
+          <span className={styles.bar}></span>
+          <span className={styles.bar}></span>
+        </div>
+      </button>
+    )
   );
 
   // Mobile sidebar markup

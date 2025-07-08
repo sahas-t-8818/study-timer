@@ -42,9 +42,18 @@ export const saveData = (data) => {
 // Session management
 export const addSession = (session) => {
   const data = loadData();
+  // Use local date from session.startTime
+  let localDateString = '';
+  if (session.startTime) {
+    const localDate = new Date(session.startTime);
+    localDateString = localDate.getFullYear() + '-' + String(localDate.getMonth() + 1).padStart(2, '0') + '-' + String(localDate.getDate()).padStart(2, '0');
+  } else {
+    const now = new Date();
+    localDateString = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+  }
   const newSession = {
     id: Date.now(),
-    date: new Date().toISOString().split('T')[0],
+    date: localDateString,
     duration: session.duration,
     startTime: session.startTime,
     endTime: session.endTime,

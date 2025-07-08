@@ -136,6 +136,12 @@ const Dashboard = () => {
           <h2 className={styles['chart-title']}>Study Time Overview</h2>
           <div className={styles['chart-controls']}>
             <button
+              className={`${styles['period-btn']} ${chartPeriod === 'today' ? styles.active : ''}`}
+              onClick={() => setChartPeriod('today')}
+            >
+              Today
+            </button>
+            <button
               className={`${styles['period-btn']} ${chartPeriod === '7d' ? styles.active : ''}`}
               onClick={() => setChartPeriod('7d')}
             >

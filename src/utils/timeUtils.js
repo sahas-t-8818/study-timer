@@ -113,7 +113,35 @@ export const getMostProductiveDays = (sessions) => {
 export const prepareChartData = (sessions, period = '7d') => {
   const now = new Date();
   const data = [];
-  
+
+  if (period === 'today') {
+    // Group today's sessions by hour (local time)
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+    const todaySessions = sessions.filter(s => {
+      if (!s.startTime) return false;
+      const start = new Date(s.startTime);
+      return start >= startOfToday && start < endOfToday;
+    });
+    const hourMap = {};
+    todaySessions.forEach(session => {
+      if (session.startTime) {
+        const start = new Date(session.startTime);
+        const hour = start.getHours();
+        hourMap[hour] = (hourMap[hour] || 0) + (session.duration || 0);
+      }
+    });
+    for (let h = 0; h < 24; h++) {
+      const duration = hourMap[h] || 0;
+      data.push({
+        hour: h,
+        time: duration,
+        formattedTime: formatDuration(duration)
+      });
+    }
+    return data;
+  }
+
   let days;
   switch (period) {
     case '7d':
@@ -128,15 +156,15 @@ export const prepareChartData = (sessions, period = '7d') => {
     default:
       days = 7;
   }
-  
+
   for (let i = days - 1; i >= 0; i--) {
     const date = new Date(now);
     date.setDate(date.getDate() - i);
     const dateString = getDateString(date);
-    
+
     const daySessions = sessions.filter(s => s.date === dateString);
     const totalTime = calculateTotalTime(daySessions);
-    
+
     data.push({
       date: dateString,
       day: getDayName(dateString),
@@ -144,6 +172,6 @@ export const prepareChartData = (sessions, period = '7d') => {
       formattedTime: formatDuration(totalTime)
     });
   }
-  
+
   return data;
 }; 

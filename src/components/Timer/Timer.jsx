@@ -1,6 +1,9 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useEffect, useCallback, useRef, useState } from 'react';
 import { formatTime } from '../../utils/timeUtils';
 import { addSession } from '../../services/dataService';
+import { getSessions } from '../../services/dataService';
+import { prepareChartData } from '../../utils/timeUtils';
+import StudyChart from '../Dashboard/StudyChart';
 import styles from './Timer.module.css';
 
 // SVG Icons as components
@@ -28,13 +31,12 @@ const ResetIcon = () => (
   </svg>
 );
 
-const Timer = () => {
-  const [time, setTime] = useState(0); // seconds
-  const [isRunning, setIsRunning] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const [startTime, setStartTime] = useState(null); // timestamp in ms
-  const [elapsed, setElapsed] = useState(0); // ms
+const Timer = ({ isRunning, setIsRunning, isPaused, setIsPaused, time, setTime }) => {
+  const [startTime, setStartTime] = React.useState(null); // timestamp in ms
+  const [elapsed, setElapsed] = React.useState(0); // ms
   const rafRef = useRef(null);
+  const [sessions, setSessions] = useState([]);
+  const [chartData, setChartData] = useState([]);
 
   // Animation frame update
   const update = useCallback(() => {
@@ -42,7 +44,7 @@ const Timer = () => {
       setTime(Math.floor((Date.now() - startTime + elapsed) / 1000));
       rafRef.current = requestAnimationFrame(update);
     }
-  }, [isRunning, isPaused, startTime, elapsed]);
+  }, [isRunning, isPaused, startTime, elapsed, setTime]);
 
   // Start timer
   const startTimer = useCallback(() => {
@@ -55,7 +57,7 @@ const Timer = () => {
       setIsPaused(false);
       setStartTime(Date.now());
     }
-  }, [isRunning, isPaused]);
+  }, [isRunning, isPaused, setIsRunning, setIsPaused]);
 
   // Pause timer
   const pauseTimer = useCallback(() => {
@@ -64,7 +66,7 @@ const Timer = () => {
       setElapsed(prevElapsed => prevElapsed + (Date.now() - startTime));
       setStartTime(null);
     }
-  }, [isRunning, isPaused, startTime]);
+  }, [isRunning, isPaused, startTime, setIsPaused]);
 
   // Stop timer and save session
   const stopTimer = useCallback(() => {
@@ -84,7 +86,7 @@ const Timer = () => {
     setTime(0);
     setStartTime(null);
     setElapsed(0);
-  }, [isRunning, time, startTime, elapsed, isPaused]);
+  }, [isRunning, time, startTime, elapsed, isPaused, setIsRunning, setIsPaused, setTime]);
 
   // Reset timer
   const resetTimer = useCallback(() => {
@@ -93,7 +95,7 @@ const Timer = () => {
     setTime(0);
     setStartTime(null);
     setElapsed(0);
-  }, []);
+  }, [setIsRunning, setIsPaused, setTime]);
 
   // Animation frame effect
   useEffect(() => {
@@ -114,7 +116,7 @@ const Timer = () => {
     };
     document.addEventListener('visibilitychange', handleVisibility);
     return () => document.removeEventListener('visibilitychange', handleVisibility);
-  }, [isRunning, isPaused, startTime, elapsed]);
+  }, [isRunning, isPaused, startTime, elapsed, setTime]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -142,6 +144,14 @@ const Timer = () => {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [isRunning, isPaused, startTimer, pauseTimer, stopTimer, resetTimer]);
 
+  useEffect(() => {
+    setSessions(getSessions());
+  }, [time, isRunning, isPaused]);
+
+  useEffect(() => {
+    setChartData(prepareChartData(sessions, 'today'));
+  }, [sessions]);
+
   return (
     <div className={styles['timer-container']}>
       <div className={`${styles['timer-card']} glass-card`}>
@@ -149,7 +159,6 @@ const Timer = () => {
           <div className={styles['time-display']}>{formatTime(time)}</div>
           <div className={styles['timer-status']}>
             {!isRunning && !isPaused && 'Ready to start'}
-            {isRunning && !isPaused && 'Studying...'}
             {isPaused && 'Paused'}
           </div>
         </div>
@@ -204,7 +213,8 @@ const Timer = () => {
           )}
         </div>
 
-        {time > 0 && (
+        {/* Only show timer-actions and timer-shortcuts if not running or paused */}
+        {(!isRunning || isPaused) && time > 0 && (
           <div className={styles['timer-actions']}>
             <button 
               className="btn btn-secondary reset-btn" 
@@ -216,12 +226,18 @@ const Timer = () => {
           </div>
         )}
 
-        <div className={styles['timer-shortcuts']}>
-          <p className={styles['shortcuts-text']}>
-            <strong>Keyboard Shortcuts:</strong><br />
-            <kbd>Space</kbd> - Start/Pause • <kbd>Ctrl+S</kbd> - Stop & Save • <kbd>Ctrl+R</kbd> - Reset
-          </p>
-        </div>
+        {(!isRunning || isPaused) && (
+          <div className={styles['timer-shortcuts']}>
+            <p className={styles['shortcuts-text']}>
+              <strong>Keyboard Shortcuts:</strong><br />
+              <kbd>Space</kbd> - Start/Pause • <kbd>Ctrl+S</kbd> - Stop & Save • <kbd>Ctrl+R</kbd> - Reset
+            </p>
+          </div>
+        )}
+      </div>
+      {/* Study time chart for today */}
+      <div style={{ marginTop: 32 }}>
+        <StudyChart data={chartData} period="today" />
       </div>
     </div>
   );

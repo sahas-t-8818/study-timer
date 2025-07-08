@@ -9,6 +9,10 @@ function App() {
   const [activeTab, setActiveTab] = useState('timer');
   const sidebarRef = useRef(null);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  // Lift timer state up
+  const [isRunning, setIsRunning] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [time, setTime] = useState(0);
 
   useEffect(() => {
     const handleOnline = () => setIsOffline(false);
@@ -24,11 +28,25 @@ function App() {
   const renderContent = () => {
     switch (activeTab) {
       case 'timer':
-        return <Timer />;
+        return <Timer 
+          isRunning={isRunning}
+          setIsRunning={setIsRunning}
+          isPaused={isPaused}
+          setIsPaused={setIsPaused}
+          time={time}
+          setTime={setTime}
+        />;
       case 'dashboard':
         return <Dashboard />;
       default:
-        return <Timer />;
+        return <Timer 
+          isRunning={isRunning}
+          setIsRunning={setIsRunning}
+          isPaused={isPaused}
+          setIsPaused={setIsPaused}
+          time={time}
+          setTime={setTime}
+        />;
     }
   };
 
@@ -53,11 +71,15 @@ function App() {
             <span role="status" aria-live="polite">⚠️ Offline: Some features may be unavailable.</span>
           </div>
         )}
-        <Sidebar 
-          ref={sidebarRef}
-          activeTab={activeTab} 
-          setActiveTab={setActiveTab}
-        />
+        {/* Sidebar is hidden when timer is running and not paused */}
+        {!(isRunning && !isPaused) && (
+          <Sidebar 
+            ref={sidebarRef}
+            activeTab={activeTab} 
+            setActiveTab={setActiveTab}
+            hideToggle={isRunning && !isPaused}
+          />
+        )}
         <main className={styles['main-content']}>
           {renderContent()}
         </main>
