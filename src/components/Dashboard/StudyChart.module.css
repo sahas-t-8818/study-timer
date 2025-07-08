@@ -1,8 +1,11 @@
 .study-chart-wrapper {
-  width: 100%;
+  width: 100% !important;
+  max-width: 100% !important;
   min-height: 220px;
-  margin: 0 auto;
+  margin: 0;
   padding: 0;
+  overflow-x: auto;
+  box-sizing: border-box;
 }
 
 .chart-tooltip {
@@ -20,6 +23,8 @@
 @media (max-width: 768px) {
   .study-chart-wrapper {
     min-height: 160px;
+    width: 100% !important;
+    max-width: 100% !important;
   }
   .chart-tooltip {
     font-size: 13px;
@@ -29,10 +34,23 @@
 
 @media (max-width: 480px) {
   .study-chart-wrapper {
-    min-height: 120px;
+    min-height: 100px;
+    width: 100% !important;
+    max-width: 100% !important;
   }
   .chart-tooltip {
     font-size: 12px;
     padding: 8px 10px;
   }
+}
+
+.chart-title {
+  font-size: clamp(1rem, 4vw, 1.2rem);
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  text-align: left;
+  margin-bottom: 0;
 } 

@@ -235,10 +235,6 @@ const Timer = ({ isRunning, setIsRunning, isPaused, setIsPaused, time, setTime }
           </div>
         )}
       </div>
-      {/* Study time chart for today */}
-      <div style={{ marginTop: 32 }}>
-        <StudyChart data={chartData} period="today" />
-      </div>
     </div>
   );
 };
